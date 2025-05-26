@@ -37,7 +37,7 @@ It provides a structured API for defining, registering, and handling custom item
 
 ## 📚 Example
 
-See [`API/Example/EMPGrenade.cs`](API/Example/EMPGrenade.cs) for an example of how to implement a custom item.
+See [`API/Example/EMPGrenade.cs`](CustomItems-LabAPI/API/Example/EMPGrenade.cs) for an example of how to implement a custom item.
 
 ---
 
