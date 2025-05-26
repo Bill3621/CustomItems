@@ -19,11 +19,13 @@ It provides a structured API for defining, registering, and handling custom item
 
 ## 🏁 Getting Started
 
-1. **Clone** the repository or download the source code.
-2. **Open** `CustomItems-LabAPI.sln` in Visual Studio.
-3. **Restore** NuGet packages if required.
-4. **Build** the solution.
-5. **Place** the built file into the plugins folder of your server.
+1. **Download** the latest release from the [Releases page](https://github.com/Bill3621/CustomItems/releases).
+2. Or **clone** the repository if you want to build from source.
+3. If building from source:
+   - **Open** `CustomItems-LabAPI.sln` in Visual Studio.
+   - **Restore** NuGet packages if required.
+   - **Build** the solution.
+   - **Place** the built file into the plugins folder of your server.
 
 ---
 
