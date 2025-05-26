@@ -13,6 +13,8 @@ public abstract class CustomItem
     public virtual float Weight => 1.0f;
 
     public virtual bool ShowItemHints => true;
+    public virtual bool ShowPickupHints => true;
+    public virtual bool ShowSelectedHints => true;
 
     public abstract void OnRegistered();
     public abstract void OnUnregistered();
@@ -27,5 +29,11 @@ public abstract class CustomItem
     public virtual void OnUsed(PlayerUsedItemEventArgs ev) { }
     public virtual void OnDropping(PlayerDroppingItemEventArgs ev) { }
     public virtual void OnDropped(PlayerDroppedItemEventArgs ev) { }
+    public virtual void OnPickingUp(PlayerPickingUpItemEventArgs ev) { }
+    public virtual void OnPickedUp(PlayerPickedUpItemEventArgs ev) { }
+    public virtual void OnSelecting(PlayerChangingItemEventArgs ev) { }
+    public virtual void OnUnselecting(PlayerChangingItemEventArgs ev) { }
+    public virtual void OnSelected(PlayerChangedItemEventArgs ev) { }
+    public virtual void OnUnselected(PlayerChangedItemEventArgs ev) { }
 
 }
