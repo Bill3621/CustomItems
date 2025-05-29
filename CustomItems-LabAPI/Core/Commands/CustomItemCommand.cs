@@ -86,7 +86,7 @@ internal class CustomItemCommand : ICommand, IUsageProvider
                 response = $"{item.Name} given to all players who can receive them ({eligiblePlayers.Count} players)";
                 return true;
             default:
-                if (Player.Get(identifier) is not { } player)
+                if (Get(identifier) is not { } player)
                 {
                     response = $"Unable to find player: {identifier}";
                     return false;
@@ -104,4 +104,31 @@ internal class CustomItemCommand : ICommand, IUsageProvider
     }
 
     private bool CheckEligible(Player player) => player.IsAlive && !player.Inventory.IsDisarmed() && (player.Items.Count() < 8);
+
+    // Borrowed from Exiled, but modified to work with LabAPI
+    private Player Get(string args)
+    {
+        if (Player.List.Where(p => p.UserId == args).FirstOrDefault() is Player player)
+            return player;
+        if (int.TryParse(args, out int id)) return Player.Get(id);
+
+        var lastnameDifference = 3;
+        var firstString = args.ToLower();
+        Player found = null;
+
+        foreach (Player plr in Player.Dictionary.Values)
+        {
+            if (!plr.IsOnline || plr.IsHost || plr.Nickname is null) continue;
+            if (!plr.Nickname.ToLower().Contains(args.ToLower())) continue;
+            var secondString = plr.Nickname;
+
+            var nameDifference = secondString.Length - firstString.Length;
+            if (nameDifference < lastnameDifference)
+            {
+                lastnameDifference = nameDifference;
+                found = plr;
+            }
+        }
+        return found;
+    }
 }
