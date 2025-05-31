@@ -23,43 +23,6 @@ internal class EventHandler : CustomEventsHandler
             if (room.IsDestroyed) continue;
             API.CustomItems.TrySpawn(0, API.CustomItems.GetRandomPositionInRoom(room), out var pickup);
         }
-        /*foreach (var room in Room.List)
-        {
-            if (room.IsDestroyed) continue;
-            var bounds = room.Base.WorldspaceBounds;
-            var hasValidPosition = false;
-            var invalidCount = 0;
-            while (!hasValidPosition)
-            {
-                var position = GetRandomPoint(bounds);
-
-                Log.Debug($"Attempting to spawn test item in room {room.Name} at position {position}.");
-
-                // Raycast
-                position += Vector3.up * 2;
-                if (!Physics.SphereCast(position, 1f, Vector3.down, out var hitInfo, 10f, FpcStateProcessor.Mask) || hitInfo.collider is null || hitInfo.point == Vector3.zero)
-                {
-                    invalidCount++;
-                    if (invalidCount > 100)
-                    {
-                        Log.Error($"Failed to find a valid spawn position in room {room.Name} after 100 attempts.");
-                        break;
-                    }
-                }
-
-                // Get hit position
-                position = hitInfo.point + Vector3.up; // Adjust position to be above the ground
-
-                API.CustomItems.TrySpawn(0, position, out var pickup);
-                //pickup.Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-                //pickup.PickupStandardPhysics.DestroyModule();
-                //pickup.PhysicsModule.DestroyModule();
-                hasValidPosition = true;
-                Log.Debug($"Spawned test item in room {room.Name} at position {position}.");
-                break;
-            }
-        }*/
-
     }
 
 
