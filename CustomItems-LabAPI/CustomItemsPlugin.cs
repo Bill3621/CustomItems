@@ -70,7 +70,10 @@ public class CustomItemsPlugin : Plugin
 
 public class CustomItemsConfig
 {
-    public bool Debug { get; set; } = true;
+    public bool Debug { get; set; } = false;
+
+    [Description("PURELY FOR DEBUGGING! DO NOT ENABLE IN PRODUCTION! WILL SPAWN A TEST ITEM AT IN EVERY ROOM!")]
+    public bool TestItemSpawning { get; set; } = false;
 
     [Description("If enabled, example items will be registered")]
     public bool EnableExampleItems { get; set; } = true;

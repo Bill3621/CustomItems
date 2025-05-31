@@ -2,6 +2,8 @@
 using InventorySystem.Items;
 using LabApi.Features.Wrappers;
 using Mirror;
+using PlayerRoles.FirstPersonControl;
+using RelativePositioning;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -122,6 +124,7 @@ public static class CustomItems
         }
 
         pickup = Pickup.Create(item.Type, position);
+        pickup.Weight = item.Weight;
         if (pickup == null) return false;
         CurrentItems.Add(pickup.Serial, (CustomItem)Activator.CreateInstance(item.GetType()));
         NetworkServer.Spawn(pickup.GameObject);
@@ -129,18 +132,124 @@ public static class CustomItems
         return true;
     }
 
-    public static bool TryGive(ushort id, Player player, out Item item)
+    public static bool TryGive(ushort id, Player player, out Item item, ItemAddReason addReason = ItemAddReason.Undefined)
     {
         if (!_itemsById.TryGetValue(id, out CustomItem cItem))
         {
             item = null;
             return false;
         }
-        item = player.AddItem(cItem.Type, ItemAddReason.Undefined);
+        item = player.AddItem(cItem.Type, addReason);
         if (item == null) return false;
         CurrentItems.Add(item.Serial, (CustomItem)Activator.CreateInstance(cItem.GetType()));
         Log.Debug($"Gave item '{cItem.Name}' ({id}) to '{player.Nickname}' with serial {item.Serial}.");
         return true;
+    }
+    #endregion
+
+    #region Positioning
+    private static readonly List<Vector3> rayDirections = [Vector3.left, Vector3.right, Vector3.forward, Vector3.back];
+    /// <summary>
+    /// Gets a random position in the specified room. It may rarely return a position behind a wall which is unreachable by players.
+    /// </summary>
+    /// <param name="room"></param>
+    /// <returns></returns>
+    public static Vector3 GetRandomPositionInRoom(Room room)
+    {
+        if (room.IsDestroyed) return Vector3.zero;
+        var roomCenter = room.Base.WorldspaceBounds.center;
+        int attempts = 0;
+        while (attempts++ <= 100)
+        {
+            if (!TryGetRoofPosition(GetRandomPointInBounds(room.Base.WorldspaceBounds), out var roofPos)) continue;
+            var targetPosition = new RelativePosition(roofPos).Position;
+
+            bool isInsideObject = Physics.CheckSphere(targetPosition, 0.1f, FpcStateProcessor.Mask);
+            if (isInsideObject) continue;
+
+            var directionToCenter = (roomCenter - targetPosition).normalized;
+            var distance = (roomCenter - targetPosition).magnitude;
+
+            // Check raycasts
+            bool hasRayMissed = false;
+
+            foreach (var dir in rayDirections)
+            {
+                if (Physics.Raycast(targetPosition, dir, out RaycastHit hit, 30f, FpcStateProcessor.Mask))
+                {
+                    var reverseDir = -dir;
+                    var hitPoint = hit.point;
+
+                    if (!Physics.Raycast(hitPoint + reverseDir * 0.1f, reverseDir, out RaycastHit reverseHit, 30f, FpcStateProcessor.Mask))
+                    {
+                        hasRayMissed = true;
+                        break;
+                    }
+
+                    if (hit.collider != reverseHit.collider)
+                    {
+                        hasRayMissed = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    hasRayMissed = true;
+                    break;
+                }
+            }
+
+            if (!hasRayMissed)
+            {
+                // Raycast to middle of room and back
+                var hitA = Physics.RaycastAll(targetPosition, directionToCenter, distance, FpcStateProcessor.Mask);
+                var hitB = Physics.RaycastAll(roomCenter, -directionToCenter, distance, FpcStateProcessor.Mask);
+
+                if (hitA.Length != hitB.Length)
+                {
+                    hasRayMissed = true;
+                }
+            }
+
+            if (!hasRayMissed)
+                return targetPosition;
+        }
+        // Backup:
+        if (!TryGetRoofPosition(room.Base.WorldspaceBounds.center, out var backupRoofPos))
+            return Vector3.zero;
+        return new RelativePosition(backupRoofPos).Position;
+    }
+
+    public static Vector3 GetRandomPointInBounds(Bounds bounds)
+    {
+        Vector3 randomOffset = UnityEngine.Random.insideUnitSphere;
+        randomOffset = new Vector3(
+            randomOffset.x * bounds.extents.x,
+            randomOffset.y * bounds.extents.y,
+            randomOffset.z * bounds.extents.z
+        );
+
+        return bounds.center + randomOffset;
+    }
+
+    public static Vector3 GetRandomPosition()
+    {
+        var rooms = Room.List.Where(room => !room.IsDestroyed).ToList();
+        var randomRoom = rooms[UnityEngine.Random.Range(0, rooms.Count)];
+        if (!TryGetRoofPosition(randomRoom.Position, out var roofPos))
+            return Vector3.zero;
+        return new RelativePosition(roofPos).Position;
+    }
+
+    private static bool TryGetRoofPosition(Vector3 point, out Vector3 result)
+    {
+        if (Physics.Raycast(point, Vector3.up, out var hitInfo, 30f, FpcStateProcessor.Mask))
+        {
+            result = hitInfo.point + Vector3.down * 0.3f;
+            return true;
+        }
+        result = Vector3.zero;
+        return false;
     }
     #endregion
 
