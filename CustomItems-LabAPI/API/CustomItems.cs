@@ -125,7 +125,7 @@ public static class CustomItems
         if (pickup == null) return false;
         CurrentItems.Add(pickup.Serial, (CustomItem)Activator.CreateInstance(item.GetType()));
         NetworkServer.Spawn(pickup.GameObject);
-        Log.Debug($"Spawned item '{item.Name}' at {position} with ID {id}.");
+        Log.Debug($"Spawned item '{item.Name}' ({id}) at {position} with serial {pickup.Serial}.");
         return true;
     }
 
@@ -139,7 +139,7 @@ public static class CustomItems
         item = player.AddItem(cItem.Type, ItemAddReason.Undefined);
         if (item == null) return false;
         CurrentItems.Add(item.Serial, (CustomItem)Activator.CreateInstance(cItem.GetType()));
-        Log.Debug($"Gave item '{cItem.Name}' to '{player.Nickname}' with ID {id}.");
+        Log.Debug($"Gave item '{cItem.Name}' ({id}) to '{player.Nickname}' with serial {item.Serial}.");
         return true;
     }
     #endregion
