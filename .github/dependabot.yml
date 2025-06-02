@@ -6,12 +6,10 @@
 version: 2
 updates:
   - package-ecosystem: "nuget"
-    directory: "/CustomItems-LabAPI"
+    directory: "/"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
     allow:
       - dependency-type: "all"
-    insecure-external-code-execution: allow
     rebase-strategy: auto
-    versioning-strategy: widen
