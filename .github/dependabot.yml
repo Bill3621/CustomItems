@@ -9,3 +9,9 @@ updates:
     directory: "/CustomItems-LabAPI"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 5
+    allow:
+      - dependency-type: "all"
+    insecure-external-code-execution: allow
+    rebase-strategy: auto
+    versioning-strategy: widen
