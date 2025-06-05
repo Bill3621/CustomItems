@@ -9,7 +9,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    open-pull-requests-limit: 5
     allow:
       - dependency-type: "all"
     rebase-strategy: auto
