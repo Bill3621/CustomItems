@@ -78,13 +78,12 @@ internal class EventHandler : CustomEventsHandler
     #region Item Selection
     public override void OnPlayerChangingItem(PlayerChangingItemEventArgs ev)
     {
-        if (ev.OldItem == null || ev.NewItem == null) return;
-        if (Check(ev.OldItem.Serial))
+        if (ev.OldItem != null && ev.OldItem.GameObject != null && Check(ev.OldItem.Serial))
         {
             API.CustomItems.CurrentItems[ev.OldItem.Serial].OnUnselecting(ev);
             if (!ev.IsAllowed) return;
         }
-        if (!Check(ev.NewItem.Serial)) return;
+        if (ev.NewItem == null || ev.NewItem.GameObject == null || !Check(ev.NewItem.Serial)) return;
         API.CustomItems.CurrentItems[ev.NewItem.Serial].OnSelecting(ev);
     }
     public override void OnPlayerChangedItem(PlayerChangedItemEventArgs ev)
