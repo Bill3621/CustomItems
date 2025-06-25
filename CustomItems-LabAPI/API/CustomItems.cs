@@ -148,7 +148,7 @@ public static class CustomItems
     #endregion
 
     #region Positioning
-    private static readonly List<Vector3> rayDirections = [Vector3.left, Vector3.right, Vector3.forward, Vector3.back];
+    internal static readonly List<Vector3> rayDirections = [Vector3.left, Vector3.right, Vector3.forward, Vector3.back];
     /// <summary>
     /// Gets a random position in the specified room. It may rarely return a position behind a wall which is unreachable by players.
     /// </summary>
@@ -241,7 +241,7 @@ public static class CustomItems
         return new RelativePosition(roofPos).Position;
     }
 
-    private static bool TryGetRoofPosition(Vector3 point, out Vector3 result)
+    internal static bool TryGetRoofPosition(Vector3 point, out Vector3 result)
     {
         if (Physics.Raycast(point, Vector3.up, out var hitInfo, 30f, FpcStateProcessor.Mask))
         {
