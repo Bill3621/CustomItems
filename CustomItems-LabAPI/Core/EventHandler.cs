@@ -78,21 +78,22 @@ internal class EventHandler : CustomEventsHandler
     #region Item Selection
     public override void OnPlayerChangingItem(PlayerChangingItemEventArgs ev)
     {
-        if (ev.OldItem != null && ev.OldItem.GameObject != null && Check(ev.OldItem.Serial))
+
+        if (ev.OldItem != null && !ev.OldItem.IsDestroyed && ev.OldItem.GameObject != null && Check(ev.OldItem.Serial))
         {
             API.CustomItems.CurrentItems[ev.OldItem.Serial].OnUnselecting(ev);
             if (!ev.IsAllowed) return;
         }
-        if (ev.NewItem == null || ev.NewItem.GameObject == null || !Check(ev.NewItem.Serial)) return;
+        if (ev.NewItem == null || ev.NewItem.IsDestroyed || ev.NewItem.GameObject == null || !Check(ev.NewItem.Serial)) return;
         API.CustomItems.CurrentItems[ev.NewItem.Serial].OnSelecting(ev);
     }
     public override void OnPlayerChangedItem(PlayerChangedItemEventArgs ev)
     {
-        if (Check(ev.OldItem.Serial))
+        if (ev.OldItem != null && !ev.OldItem.IsDestroyed && Check(ev.OldItem.Serial))
         {
             API.CustomItems.CurrentItems[ev.OldItem.Serial].OnUnselected(ev);
         }
-        if (!Check(ev.NewItem.Serial)) return;
+        if (ev.NewItem == null || ev.NewItem.IsDestroyed || !Check(ev.NewItem.Serial)) return;
         var customItem = API.CustomItems.CurrentItems[ev.NewItem.Serial];
         customItem.OnSelected(ev);
         if (!customItem.ShowItemHints || !customItem.ShowSelectedHints) return;
