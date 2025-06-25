@@ -74,6 +74,8 @@
     <Compile Include="API\CustomItem.cs" />
     <Compile Include="API\CustomItems.cs" />
     <Compile Include="API\Example\EMPGrenade.cs" />
+    <Compile Include="API\Example\HealingSyringe.cs" />
+    <Compile Include="API\Example\PocketMirror.cs" />
     <Compile Include="Core\Commands\CustomItemCommand.cs" />
     <Compile Include="Core\Commands\TPPos.cs" />
     <Compile Include="Core\EventHandler.cs" />
