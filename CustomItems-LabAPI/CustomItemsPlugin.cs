@@ -20,7 +20,7 @@ public class CustomItemsPlugin : Plugin
 
     public override string Author => "Bill";
 
-    public override Version Version => new(0, 1, 0);
+    public override Version Version => new(0, 1, 1);
 
     public override Version RequiredApiVersion => new(LabApiProperties.CompiledVersion);
 
