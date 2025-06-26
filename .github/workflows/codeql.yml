@@ -69,25 +69,9 @@ jobs:
     - name: Patch ServerDownloader.cs to skip prompts
       shell: pwsh
       run: |
-        $path = "SecretLabDependenciesBuilder/SecretLabDependenciesBuilder/ServerDownloader.cs"
-        $content = Get-Content $path
-        $patternStart = 'public static async Task RunAsync\(\)'
-        $startIndex = $content.FindIndex({ $_ -match $patternStart })
-        if ($startIndex -lt 0) { throw "Start pattern not found." }
-
-        $braceCount = 0
-        for ($i = $startIndex; $i -lt $content.Count; $i++) {
-            $line = $content[$i]
-            $braceCount += ($line -split '{').Count - 1
-            $braceCount -= ($line -split '}').Count - 1
-            if ($braceCount -eq 0 -and $i -ne $startIndex) {
-                $endIndex = $i
-                break
-            }
-        }
-        $replacement = @'
+        (Get-Content "SecretLabDependenciesBuilder/SecretLabDependenciesBuilder/ServerDownloader.cs") -replace 'public static async Task RunAsync\(\)\s*\{[^}]*\}', @'
         public static async Task RunAsync()
-        { 
+        {
             ConsoleWriter.WriteTitle();
             _beta = Environment.GetEnvironmentVariable("SL_BETA") ?? "";
             _betaPassword = Environment.GetEnvironmentVariable("SL_BETA_PASSWORD") ?? "";
@@ -98,7 +82,7 @@ jobs:
             List<string> args = [ "-app", "996560", "-filelist", filesPath, "-dir", installationDirectory.FullName ];
             if (!string.IsNullOrEmpty(_beta)) {
                 args.Add("-beta"); args.Add(_beta);
-                if (!string.IsNullOrEmpty(_betaPassword)) {
+                if (!string.IsNullOrEmpty(_betaPassword)) { 
                     args.Add("-betapassword"); args.Add(_betaPassword);
                 }
             }
@@ -111,9 +95,7 @@ jobs:
             AssembliesPublicizer.RunPublicizer(managedDirectory);
             installationDirectory.Delete(true);
         }
-        '@ -split "`n"
-        $newContent = $content[0..($startIndex - 1)] + $replacement + $content[($endIndex + 1)..($content.Count - 1)]
-        Set-Content -Path $path -Value $newContent
+        '@ | Set-Content "SecretLabDependenciesBuilder/SecretLabDependenciesBuilder/ServerDownloader.cs"
 
     - name: Build SecretLabDependenciesBuilder
       run: |
