@@ -72,7 +72,7 @@ jobs:
         @‚
         using DepotDownloader;
 
-        namespace SecretLabDependenciesBuilde
+        namespace SecretLabDependenciesBuilder;
 
         public static class ServerDownloader
         {
