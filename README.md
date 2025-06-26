@@ -71,7 +71,7 @@
 ## 📦 Example
 
 Want a concrete implementation?
-Check out [`API/Example/EMPGrenade.cs`](CustomItems-LabAPI/API/Example/EMPGrenade.cs) to see how to build a functioning custom item with event hooks and effects!
+Check out [`API/Example`](CustomItems-LabAPI/API/Example) to see how to build a functioning custom item with event hooks and effects!
 
 ---
 
