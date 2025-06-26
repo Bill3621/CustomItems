@@ -67,9 +67,54 @@ jobs:
       run: git clone https://github.com/Jesus-QC/SecretLabDependenciesBuilder.git
     
     - name: Patch ServerDownloader.cs to skip prompts
+      shell: pwsh
       run: |
-        sed -i '/public static async Task RunAsync()/,/^\}/c\public static async Task RunAsync()\n{\n    ConsoleWriter.WriteTitle();\n    _beta = Environment.GetEnvironmentVariable("SL_BETA") ?? ""; \n    _betaPassword = Environment.GetEnvironmentVariable("SL_BETA_PASSWORD") ?? ""; \n    DirectoryInfo installationDirectory = new(Path.Combine(Environment.CurrentDirectory, "temp"));\n    installationDirectory.Create();\n    string filesPath = Path.Combine(installationDirectory.FullName, "files.txt");\n    await File.WriteAllTextAsync(filesPath, "regex:SCPSL_Data/Managed/*");\n    List<string> args = [ "-app", "996560", "-filelist", filesPath, "-dir", installationDirectory.FullName ];\n    if (!string.IsNullOrEmpty(_beta)) {\n        args.Add("-beta"); args.Add(_beta);\n        if (!string.IsNullOrEmpty(_betaPassword)) {\n            args.Add("-betapassword"); args.Add(_betaPassword);\n        }\n    }\n    bool success = await DepotProgram.Main(args.ToArray()) == 0;\n    if (!success) {\n        ConsoleWriter.Write("An error occurred while downloading the files.", ConsoleColor.Red);\n        return;\n    }\n    DirectoryInfo managedDirectory = new(Path.Combine(installationDirectory.FullName, "SCPSL_Data/Managed"));\n    AssembliesPublicizer.RunPublicizer(managedDirectory);\n    installationDirectory.Delete(true);\n}\n}' SecretLabDependenciesBuilder/SecretLabDependenciesBuilder/ServerDownloader.cs
-    
+        $path = "SecretLabDependenciesBuilder/SecretLabDependenciesBuilder/ServerDownloader.cs"
+        $content = Get-Content $path
+        $patternStart = 'public static async Task RunAsync\(\)'
+        $startIndex = $content.FindIndex({ $_ -match $patternStart })
+        if ($startIndex -lt 0) { throw "Start pattern not found." }
+
+        $braceCount = 0
+        for ($i = $startIndex; $i -lt $content.Count; $i++) {
+            $line = $content[$i]
+            $braceCount += ($line -split '{').Count - 1
+            $braceCount -= ($line -split '}').Count - 1
+            if ($braceCount -eq 0 -and $i -ne $startIndex) {
+                $endIndex = $i
+                break
+            }
+        }
+        $replacement = @'
+        public static async Task RunAsync()
+        { 
+            ConsoleWriter.WriteTitle();
+            _beta = Environment.GetEnvironmentVariable("SL_BETA") ?? "";
+            _betaPassword = Environment.GetEnvironmentVariable("SL_BETA_PASSWORD") ?? "";
+            DirectoryInfo installationDirectory = new(Path.Combine(Environment.CurrentDirectory, "temp"));
+            installationDirectory.Create();
+            string filesPath = Path.Combine(installationDirectory.FullName, "files.txt");
+            await File.WriteAllTextAsync(filesPath, "regex:SCPSL_Data/Managed/*");
+            List<string> args = [ "-app", "996560", "-filelist", filesPath, "-dir", installationDirectory.FullName ];
+            if (!string.IsNullOrEmpty(_beta)) {
+                args.Add("-beta"); args.Add(_beta);
+                if (!string.IsNullOrEmpty(_betaPassword)) {
+                    args.Add("-betapassword"); args.Add(_betaPassword);
+                }
+            }
+            bool success = await DepotProgram.Main(args.ToArray()) == 0;
+            if (!success) {
+                ConsoleWriter.Write("An error occurred while downloading the files.", ConsoleColor.Red);
+                return;
+            }
+            DirectoryInfo managedDirectory = new(Path.Combine(installationDirectory.FullName, "SCPSL_Data/Managed"));
+            AssembliesPublicizer.RunPublicizer(managedDirectory);
+            installationDirectory.Delete(true);
+        }
+        '@ -split "`n"
+        $newContent = $content[0..($startIndex - 1)] + $replacement + $content[($endIndex + 1)..($content.Count - 1)]
+        Set-Content -Path $path -Value $newContent
+
     - name: Build SecretLabDependenciesBuilder
       run: |
         dotnet publish SecretLabDependenciesBuilder/SecretLabDependenciesBuilder/SecretLabDependenciesBuilder.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o builder-out
