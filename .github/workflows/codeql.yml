@@ -72,17 +72,11 @@ jobs:
     
     - name: Build SecretLabDependenciesBuilder
       run: |
-        dotnet publish SecretLabDependenciesBuilder/SecretLabDependenciesBuilder/SecretLabDependenciesBuilder.csproj \
-          -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o builder-out
-        chmod +x builder-out/SecretLabDependenciesBuilder
-
-    - name: Setup config.yml
-      run: |
-        cp SLDeps/config.yml config.yml
+        dotnet publish SecretLabDependenciesBuilder/SecretLabDependenciesBuilder/SecretLabDependenciesBuilder.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o builder-out
     
     - name: Run SecretLabDependenciesBuilder
       run: |
-        builder-out/SecretLabDependenciesBuilder
+        builder-out/SecretLabDependenciesBuilder.exe
         
     - name: Set dynamic variable
       run: echo "SL_REFERENCES=$(realpath References)" >> $GITHUB_ENV
