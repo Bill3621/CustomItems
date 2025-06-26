@@ -27,7 +27,7 @@ jobs:
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'windows-latest' }}
     permissions:
       # required for all workflows
       security-events: write
@@ -56,6 +56,37 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    # Set up dependencies
+    - name: Setup .NET 9.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Clone SecretLabDependenciesBuilder
+      run: git clone https://github.com/Jesus-QC/SecretLabDependenciesBuilder.git
+    
+    - name: Patch ServerDownloader.cs to skip prompts
+      run: |
+        sed -i '/public static async Task RunAsync()/,/^\}/c\public static async Task RunAsync()\n{\n    ConsoleWriter.WriteTitle();\n    _beta = Environment.GetEnvironmentVariable("SL_BETA") ?? ""; \n    _betaPassword = Environment.GetEnvironmentVariable("SL_BETA_PASSWORD") ?? ""; \n    DirectoryInfo installationDirectory = new(Path.Combine(Environment.CurrentDirectory, "temp"));\n    installationDirectory.Create();\n    string filesPath = Path.Combine(installationDirectory.FullName, "files.txt");\n    await File.WriteAllTextAsync(filesPath, "regex:SCPSL_Data/Managed/*");\n    List<string> args = [ "-app", "996560", "-filelist", filesPath, "-dir", installationDirectory.FullName ];\n    if (!string.IsNullOrEmpty(_beta)) {\n        args.Add("-beta"); args.Add(_beta);\n        if (!string.IsNullOrEmpty(_betaPassword)) {\n            args.Add("-betapassword"); args.Add(_betaPassword);\n        }\n    }\n    bool success = await DepotProgram.Main(args.ToArray()) == 0;\n    if (!success) {\n        ConsoleWriter.Write("An error occurred while downloading the files.", ConsoleColor.Red);\n        return;\n    }\n    DirectoryInfo managedDirectory = new(Path.Combine(installationDirectory.FullName, "SCPSL_Data/Managed"));\n    AssembliesPublicizer.RunPublicizer(managedDirectory);\n    installationDirectory.Delete(true);\n}\n}' SecretLabDependenciesBuilder/SecretLabDependenciesBuilder/ServerDownloader.cs
+    
+    - name: Build SecretLabDependenciesBuilder
+      run: |
+        dotnet publish SecretLabDependenciesBuilder/SecretLabDependenciesBuilder/SecretLabDependenciesBuilder.csproj \
+          -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o builder-out
+        chmod +x builder-out/SecretLabDependenciesBuilder
+
+    - name: Setup config.yml
+      run: |
+        cp SLDeps/config.yml config.yml
+    
+    - name: Run SecretLabDependenciesBuilder
+      run: |
+        builder-out/SecretLabDependenciesBuilder
+        
+    - name: Set dynamic variable
+      run: echo "SL_REFERENCES=$(realpath References)" >> $GITHUB_ENV
+
 
     # Add any setup steps before running the `github/codeql-action/init` action.
     # This includes steps like installing compilers or runtimes (`actions/setup-node`
