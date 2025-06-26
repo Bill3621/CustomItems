@@ -19,6 +19,12 @@ on:
   schedule:
     - cron: '19 1 * * 1'
 
+env:
+  SL_BETA: ""
+  SL_BETA_PASSWORD: ""
+  SL_REFERENCES: ../References
+
+
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
@@ -114,10 +120,6 @@ jobs:
     - name: Run SecretLabDependenciesBuilder
       run: |
         builder-out/SecretLabDependenciesBuilder.exe
-        
-    - name: Set dynamic variable
-      run: echo "SL_REFERENCES=$(realpath References)" >> $GITHUB_ENV
-
 
     # Add any setup steps before running the `github/codeql-action/init` action.
     # This includes steps like installing compilers or runtimes (`actions/setup-node`
