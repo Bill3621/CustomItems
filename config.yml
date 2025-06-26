@@ -1,0 +1,14 @@
+AssembliesToPublicize:
+  - Assembly-CSharp.dll
+  - Assembly-CSharp-firstpass.dll
+  - CommandSystem.Core.dll
+  - LabApi.dll
+  - Mirror.dll
+  - Pooling.dll
+  - UnityEngine.dll
+  - UnityEngine.CoreModule.dll
+  - UnityEngine.PhysicsModule.dll
+ZipReferences: false
+ReferencesZipName: References.zip
+SaveReferencesToFolder: true
+ReferencesFolderName: References
