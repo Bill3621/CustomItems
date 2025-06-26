@@ -121,6 +121,10 @@ jobs:
       run: |
         builder-out/SecretLabDependenciesBuilder.exe
 
+    - name: Create plugin output directory
+      run: mkdir "%USERPROFILE%\AppData\Roaming\SCP Secret Laboratory\LabAPI\plugins\global"
+      shell: cmd
+
     # Add any setup steps before running the `github/codeql-action/init` action.
     # This includes steps like installing compilers or runtimes (`actions/setup-node`
     # or others). This is typically only required for manual builds.
