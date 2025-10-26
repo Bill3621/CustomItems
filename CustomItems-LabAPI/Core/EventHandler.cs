@@ -25,8 +25,6 @@ internal class EventHandler : CustomEventsHandler
         }
     }
 
-
-
     private bool Check(ushort serial)
     {
         return API.CustomItems.CurrentItems.ContainsKey(serial);

@@ -20,9 +20,7 @@ internal class Log
     {
         Assembly callingAssembly = Assembly.GetCallingAssembly();
         if (CustomItemsPlugin.Instance.Config.Debug)
-        {
             Send($"[{callingAssembly.GetName().Name}] {message}", LogLevel.Debug, ConsoleColor.Green);
-        }
     }
 
     public static T DebugObject<T>(T @object)
@@ -35,9 +33,7 @@ internal class Log
     {
         Assembly callingAssembly = Assembly.GetCallingAssembly();
         if (CustomItemsPlugin.Instance.Config.Debug)
-        {
             Send("[" + callingAssembly.GetName().Name + "] " + message, LogLevel.Debug, ConsoleColor.Green);
-        }
     }
 
     public static void Warn(object message)
@@ -83,9 +79,7 @@ internal class Log
     public static void Assert(bool condition, object message)
     {
         if (condition)
-        {
             return;
-        }
         Error(message);
         throw new Exception(message.ToString());
     }

@@ -49,9 +49,7 @@ public class CustomItemsPlugin : Plugin
 
         harmony.PatchAll();
         foreach (var a in harmony.GetPatchedMethods())
-        {
             Log.Debug("Patched: " + a.Name);
-        }
 
         CustomHandlersManager.RegisterEventsHandler(Events);
 

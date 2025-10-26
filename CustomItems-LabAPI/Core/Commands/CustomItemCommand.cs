@@ -31,9 +31,7 @@ internal class CustomItemCommand : ICommand, IUsageProvider
         {
             response = this.DisplayCommandUsage() + "\n";
             foreach (CustomItem customItem in API.CustomItems.AllItems)
-            {
                 response += $"Name: {customItem.Name} | Id: {customItem.Id}\n";
-            }
             return false;
         }
 
@@ -77,9 +75,7 @@ internal class CustomItemCommand : ICommand, IUsageProvider
             case "all":
                 var eligiblePlayers = Player.List.Where(CheckEligible).ToList();
                 foreach (var ply in eligiblePlayers)
-                {
                     API.CustomItems.TryGive(id, ply, out _);
-                }
                 response = $"{item.Name} given to all players who can receive them ({eligiblePlayers.Count} players)";
                 return true;
             default:
